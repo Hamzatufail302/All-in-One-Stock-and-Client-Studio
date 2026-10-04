@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockPulse AI - Stock Keywords & Daily Production Intelligence</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+</head>
+<body class="min-h-screen flex flex-col bg-[#070b14] text-slate-100 selection:bg-indigo-500 selection:text-white">
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="no-scrollbar"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <!-- Brand Logo -->
+                <div class="flex items-center gap-3 cursor-pointer shrink-0 select-none group" onclick="switchTab('overview')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-200">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-lg font-black tracking-tight text-white">
+                                StockPulse <span class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">AI</span>
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-black bg-gradient-to-r from-emerald-500/20 via-indigo-500/20 to-purple-500/20 text-emerald-300 border border-emerald-500/40 font-mono shadow-sm">v2.0 Elite</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 -mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-mono font-medium">Live Intelligence</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Nav Tabs (Clean, uncrowded layout with no horizontal scrollbar) -->
+                <nav class="hidden md:flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900/60 border border-slate-800/80">
+                    <button onclick="switchTab('overview')" data-tab="overview" class="nav-tab nav-tab-active px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap text-slate-300">
+                        <i data-lucide="globe" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        <span>Combined Search</span>
+                    </button>
+
+                    <!-- Marketplaces Hub Pill / Menu -->
+                    <div class="relative group">
+                        <button onclick="switchTab('platform-adobe_stock')" data-tab="marketplaces-group" class="nav-tab px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap text-slate-400 hover:text-white">
+                            <i data-lucide="store" class="w-3.5 h-3.5 text-rose-400"></i>
+                            <span>Marketplaces</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-500 group-hover:text-slate-300 transition-transform group-hover:rotate-180"></i>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div class="absolute left-0 mt-2 w-56 rounded-2xl glass-panel p-2 shadow-2xl border border-slate-700/80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+                            <div class="px-2 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Isolated Platforms</div>
+                            <button onclick="switchTab('platform-adobe_stock')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between text-slate-200 hover:bg-slate-800/80 transition">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                    Adobe Stock
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-mono">49 Tags</span>
+                            </button>
+                            <button onclick="switchTab('platform-shutterstock')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between text-slate-200 hover:bg-slate-800/80 transition">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                    Shutterstock
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-mono">50 Tags</span>
+                            </button>
+                            <button onclick="switchTab('platform-etsy')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between text-slate-200 hover:bg-slate-800/80 transition">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    Etsy
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-mono">13 Tags</span>
+                            </button>
+                            <button onclick="switchTab('platform-iconscout')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between text-slate-200 hover:bg-slate-800/80 transition">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    IconScout
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-mono">30 Tags</span>
+                            </button>
+                            <button onclick="switchTab('platform-graphicriver')" class="w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between text-slate-200 hover:bg-slate-800/80 transition">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    GraphicRiver
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-mono">30 Tags</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button onclick="switchTab('daily-events')" data-tab="daily-events" class="nav-tab px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap text-slate-400 hover:text-white">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i>
+                        <span>Ranked Calendar</span>
+                    </button>
+                    
+                    <button onclick="switchTab('daily-tracker')" data-tab="daily-tracker" class="nav-tab px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap text-slate-400 hover:text-white">
+                        <i data-lucide="target" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Daily Tracker</span>
+                    </button>
+
+                    <button onclick="switchTab('ai-quota')" data-tab="ai-quota" class="nav-tab px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap text-slate-400 hover:text-white">
+                        <i data-lucide="cpu" class="w-3.5 h-3.5 text-purple-400"></i>
+                        <span>AI Daily Quota</span>
+                    </button>
+
+                    <button onclick="switchTab('android-apps')" data-tab="android-apps" class="nav-tab px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap text-slate-400 hover:text-white">
+                        <i data-lucide="smartphone" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Android Apps</span>
+                    </button>
+
+                    <button onclick="switchTab('client-acquisition')" data-tab="client-acquisition" class="nav-tab px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap text-slate-400 hover:text-white">
+                        <i data-lucide="video" class="w-3.5 h-3.5 text-pink-400"></i>
+                        <span>Client Acquisition</span>
+                    </button>
+                </nav>
+
+                <!-- Right Action Controls -->
+                <div class="flex items-center gap-2.5 shrink-0">
+                    <!-- Commercial Timing Guide Modal Trigger -->
+                    <button onclick="openDeadlineGuideModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition shadow-sm active:scale-95" title="View Commercial Deadline Guide & 45-90d Indexing Rules">
+                        <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i>
+                        <span class="text-xs font-bold hidden lg:inline">Timing Guide</span>
+                    </button>
+
+                    <!-- Today's Goal Progress Pill -->
+                    <button id="header-goal-badge" onclick="switchTab('daily-tracker')" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-emerald-500/50 hover:bg-slate-800/80 transition group shadow-sm" title="Click to view & manage Today's Production Goals">
+                        <div class="w-14 h-2 rounded-full bg-slate-800 overflow-hidden relative">
+                            <div id="header-goal-fill" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <span id="header-goal-text" class="text-[11px] font-bold text-slate-300 group-hover:text-emerald-300 transition-colors font-mono">Today: 0/23</span>
+                    </button>
+
+                    <!-- Production Queue Button -->
+                    <button onclick="switchTab('queue')" data-tab="queue" class="nav-tab flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-200 border border-indigo-500/30 transition shadow-sm" title="View Production Queue">
+                        <i data-lucide="list-todo" class="w-4 h-4 text-indigo-400"></i>
+                        <span class="text-xs font-bold hidden sm:inline">Queue</span>
+                        <span id="queue-count-badge" class="px-1.5 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-black">0</span>
+                    </button>
+
+                    <!-- Mobile Menu Hamburger -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:text-white transition">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Platform Strip (Appears when on Marketplace views or can be toggled) -->
+        <div id="marketplace-subnav-strip" class="border-t border-slate-800/60 bg-slate-950/60 py-2 hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1.5">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        Platforms:
+                    </span>
+                    <button onclick="switchTab('platform-adobe_stock')" data-platform-pill="adobe_stock" class="platform-strip-btn px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-300 hover:border-red-500/50 hover:text-white transition">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        Adobe Stock
+                        <span class="text-[10px] text-slate-500 font-mono">49 Tags</span>
+                    </button>
+                    <button onclick="switchTab('platform-shutterstock')" data-platform-pill="shutterstock" class="platform-strip-btn px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-300 hover:border-rose-500/50 hover:text-white transition">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        Shutterstock
+                        <span class="text-[10px] text-slate-500 font-mono">50 Tags</span>
+                    </button>
+                    <button onclick="switchTab('platform-etsy')" data-platform-pill="etsy" class="platform-strip-btn px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-300 hover:border-amber-500/50 hover:text-white transition">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        Etsy
+                        <span class="text-[10px] text-slate-500 font-mono">13 Tags</span>
+                    </button>
+                    <button onclick="switchTab('platform-iconscout')" data-platform-pill="iconscout" class="platform-strip-btn px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-300 hover:border-blue-500/50 hover:text-white transition">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        IconScout
+                        <span class="text-[10px] text-slate-500 font-mono">30 Tags</span>
+                    </button>
+                    <button onclick="switchTab('platform-graphicriver')" data-platform-pill="graphicriver" class="platform-strip-btn px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap bg-slate-900 border border-slate-800 text-slate-300 hover:border-emerald-500/50 hover:text-white transition">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        GraphicRiver
+                        <span class="text-[10px] text-slate-500 font-mono">30 Tags</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Drawer Modal -->
+    <div id="mobile-drawer" class="fixed inset-0 z-50 drawer-closed">
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
+        <div class="fixed right-0 top-0 bottom-0 w-80 max-w-full bg-[#0b0f19] border-l border-slate-800 p-6 flex flex-col justify-between overflow-y-auto">
+            <div>
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                    <span class="font-bold text-white text-base flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-indigo-400"></i>
+                        Navigation Menu
+                    </span>
+                    <button onclick="toggleMobileMenu()" class="p-1 rounded-lg text-slate-400 hover:text-white">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 py-1">Main Tools</div>
+                    <button onclick="switchTab('overview'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
+                        <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
+                        Combined Search
+                    </button>
+                    <button onclick="switchTab('daily-events'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
+                        <i data-lucide="calendar" class="w-4 h-4 text-amber-400"></i>
+                        Ranked Calendar
+                    </button>
+                    <button onclick="switchTab('daily-tracker'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
+                        <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i>
+                        Daily Tracker
+                    </button>
+                    <button onclick="switchTab('ai-quota'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
+                        <i data-lucide="cpu" class="w-4 h-4 text-purple-400"></i>
+                        AI Daily Quota
+                    </button>
+                    <button onclick="switchTab('queue'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
+                        <i data-lucide="list-todo" class="w-4 h-4 text-indigo-400"></i>
+                        Production Queue
+                    </button>
+                    <button onclick="switchTab('android-apps'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
+                        <i data-lucide="smartphone" class="w-4 h-4 text-emerald-400"></i>
+                        Android Apps & Play Store
+                    </button>
+                    <button onclick="switchTab('client-acquisition'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
+                        <i data-lucide="video" class="w-4 h-4 text-pink-400"></i>
+                        Client Acquisition & Video Outreach
+                    </button>
+                    <button onclick="openDeadlineGuideModal(); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-amber-300 hover:bg-slate-800/80 transition">
+                        <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                        Upload Timing & Deadline Guide
+                    </button>
+
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pt-4 pb-1">Marketplaces</div>
+                    <button onclick="switchTab('platform-adobe_stock'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-800/80 transition">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        Adobe Stock
+                    </button>
+                    <button onclick="switchTab('platform-shutterstock'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-800/80 transition">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        Shutterstock
+                    </button>
+                    <button onclick="switchTab('platform-etsy'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-800/80 transition">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        Etsy
+                    </button>
+                    <button onclick="switchTab('platform-iconscout'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-800/80 transition">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        IconScout
+                    </button>
+                    <button onclick="switchTab('platform-graphicriver'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-800/80 transition">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        GraphicRiver
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800 text-xs text-slate-500 text-center font-mono">
+                StockPulse AI • Creator Engine
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Body -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ========================================== -->
+        <!-- TAB: COMBINED SEARCH & TRENDS -->
+        <!-- ========================================== -->
+        <div id="tab-overview" class="tab-panel space-y-8">
+
+            <!-- Hero Search & Live Engine -->
+            <div class="relative rounded-3xl p-8 sm:p-12 overflow-hidden glass-panel border border-indigo-500/25 shadow-2xl">
+                <div class="absolute -right-20 -top-20 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-3xl mx-auto text-center">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-4 shadow-sm">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        Cross-Marketplace Live Keywords & Trend Intelligence
+                    </div>
+
+                    <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+                        Find High-Demand <span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">Stock Trends</span> & Commercial Keywords
+                    </h1>
+                    <p class="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Searches simultaneously across Adobe Stock, Shutterstock, Etsy Canva & SVG, IconScout 3D, and GraphicRiver PSD mockups with automatic SEO title generation.
+                    </p>
+
+                    <!-- Big Interactive Search Bar -->
+                    <div class="mt-8 flex flex-col sm:flex-row items-center gap-2 p-2 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/25 transition">
+                        <!-- Text Input -->
+                        <div class="w-full flex-1 relative flex items-center">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-500 ml-4 pointer-events-none"></i>
+                            <input
+                                id="main-search-input"
+                                type="text"
+                                placeholder="Enter keyword or niche (e.g. wedding invitation, cyberpunk vector, real estate, mockup, 3d icon)..."
+                                class="w-full bg-transparent text-white placeholder-slate-500 text-sm py-3 px-3 focus:outline-none font-medium"
+                            />
+                        </div>
+
+                        <!-- Search Button -->
+                        <button
+                            id="btn-main-search"
+                            onclick="handleSearchSubmit()"
+                            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95"
+                        >
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                            <span>Crawl Trends</span>
+                        </button>
+                    </div>
+
+                    <input type="hidden" id="search-platform-select" value="all" />
+
+                    <!-- Quick Suggestions Pills -->
+                    <div class="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
+                        <span class="text-slate-400 font-semibold text-[11px] uppercase tracking-wider">Quick Suggestions:</span>
+                        <button data-keyword="canva wedding invitation" class="quick-niche-pill px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 hover:border-indigo-500/40 transition">
+                            💍 Canva Wedding
+                        </button>
+                        <button data-keyword="cyberpunk vector" class="quick-niche-pill px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 hover:border-indigo-500/40 transition">
+                            ⚡ Cyberpunk Vector
+                        </button>
+                        <button data-keyword="digital planner goodnotes" class="quick-niche-pill px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 hover:border-indigo-500/40 transition">
+                            📅 GoodNotes Planner
+                        </button>
+                        <button data-keyword="streetwear hoodie mockup" class="quick-niche-pill px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 hover:border-indigo-500/40 transition">
+                            👕 Hoodie Mockup
+                        </button>
+                        <button data-keyword="fintech 3d icon" class="quick-niche-pill px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/70 hover:border-indigo-500/40 transition">
+                            💎 Fintech 3D Icon
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Search Results Section -->
+            <div id="search-results-section" class="hidden"></div>
+
+            <!-- Seasonal Alert Banner -->
+            <div id="seasonal-radar-hero" class="glass-panel rounded-3xl p-6 sm:p-8 border border-indigo-500/30 shadow-xl"></div>
+
+            <!-- Marketplace Hub Grid Overview -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Target Marketplace Hubs (Isolated Sections)</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Click any marketplace to view its isolated search engine, separated vector/image/video specs, and ready titles</p>
+                    </div>
+                </div>
+                <div id="platforms-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB: ADOBE STOCK (ISOLATED) -->
+        <!-- ========================================== -->
+        <div id="tab-platform-adobe_stock" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: SHUTTERSTOCK (ISOLATED) -->
+        <!-- ========================================== -->
+        <div id="tab-platform-shutterstock" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: ETSY (ISOLATED) -->
+        <!-- ========================================== -->
+        <div id="tab-platform-etsy" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: ICONSCOUT (ISOLATED) -->
+        <!-- ========================================== -->
+        <div id="tab-platform-iconscout" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: GRAPHICRIVER (ISOLATED) -->
+        <!-- ========================================== -->
+        <div id="tab-platform-graphicriver" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: DAILY RANKED EVENTS CALENDAR -->
+        <!-- ========================================== -->
+        <div id="tab-daily-events" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: DAILY PROGRESS TRACKER & GOAL MANAGER -->
+        <!-- ========================================== -->
+        <div id="tab-daily-tracker" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: AI DAILY QUOTA (20 PROMPTS/DAY) -->
+        <!-- ========================================== -->
+        <div id="tab-ai-quota" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: PRODUCTION QUEUE & KANBAN -->
+        <!-- ========================================== -->
+        <div id="tab-queue" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: ANDROID APPS & PLAY STORE STUDIO -->
+        <!-- ========================================== -->
+        <div id="tab-android-apps" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: VIDEO CLIENT ACQUISITION & OUTREACH -->
+        <!-- ========================================== -->
+        <div id="tab-client-acquisition" class="tab-panel hidden space-y-8"></div>
+
+    </main>
+
+    <!-- Alphabet Soup Modal -->
+    <div id="alphabet-soup-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+        <div class="glass-panel w-full max-w-5xl rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
+            <div id="alphabet-soup-content"></div>
+        </div>
+    </div>
+
+    <!-- Add Idea to Production Queue Modal -->
+    <div id="add-idea-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+        <div class="glass-panel w-full max-w-lg rounded-3xl border border-slate-700 shadow-2xl p-6 relative">
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-white text-base">Add Idea to Production Queue</h3>
+                        <p class="text-xs text-slate-400">Save a concept directly to your design roadmap</p>
+                    </div>
+                </div>
+                <button onclick="closeAddIdeaModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Keyword / Asset Concept <span class="text-rose-400">*</span></label>
+                    <input id="new-idea-keyword" type="text" oninput="updateNewIdeaTimingPreview(this.value)" placeholder="e.g. Minimalist Coffee Cup Mockup, Halloween Vector, Cyberpunk City..." class="w-full bg-slate-900 text-white text-xs py-2.5 px-3.5 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 font-medium" />
+                    <!-- Dynamic Live Timing Preview -->
+                    <div id="new-idea-timing-preview" class="mt-2.5 p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs font-mono hidden">
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                            <span id="new-idea-timing-badge" class="px-2 py-0.5 rounded text-[10px] font-black"></span>
+                            <span id="new-idea-timing-deadline" class="text-slate-300"></span>
+                        </div>
+                        <div id="new-idea-timing-range" class="text-slate-400 text-[11px]"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Asset Format / Tool</label>
+                        <select id="new-idea-type" class="w-full bg-slate-900 text-slate-200 text-xs py-2.5 px-3 rounded-xl border border-slate-700 focus:outline-none font-medium">
+                            <option value="Illustrator (Vector)">📐 Illustrator (Vector)</option>
+                            <option value="AI Image (Photo)">📸 AI Image (Photo)</option>
+                            <option value="AI Video (4K Loop)">🎬 AI Video (4K Loop)</option>
+                            <option value="Canva Template">📄 Canva Template</option>
+                            <option value="Photoshop PSD">🖼️ Photoshop PSD</option>
+                            <option value="3D UI Asset">💎 3D UI Asset</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Target Marketplace</label>
+                        <select id="new-idea-platform" class="w-full bg-slate-900 text-slate-200 text-xs py-2.5 px-3 rounded-xl border border-slate-700 focus:outline-none font-medium">
+                            <option value="Adobe Stock">Adobe Stock</option>
+                            <option value="Etsy">Etsy</option>
+                            <option value="Shutterstock">Shutterstock</option>
+                            <option value="IconScout">IconScout</option>
+                            <option value="GraphicRiver">GraphicRiver</option>
+                            <option value="Multi">Multi-Marketplace</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Initial Stage</label>
+                        <select id="new-idea-stage" class="w-full bg-slate-900 text-slate-200 text-xs py-2.5 px-3 rounded-xl border border-slate-700 focus:outline-none font-medium">
+                            <option value="Idea">💡 Idea</option>
+                            <option value="Designing">🎨 Designing</option>
+                            <option value="Ready">✅ Ready for Upload</option>
+                            <option value="Uploaded">🚀 Uploaded</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Opportunity Priority</label>
+                        <select id="new-idea-score" class="w-full bg-slate-900 text-slate-200 text-xs py-2.5 px-3 rounded-xl border border-slate-700 focus:outline-none font-medium">
+                            <option value="95">🔥 High Priority (95)</option>
+                            <option value="80" selected>⚡ Medium Priority (80)</option>
+                            <option value="60">🌱 Normal (60)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Production Notes / Title Suggestion</label>
+                    <textarea id="new-idea-notes" rows="2" placeholder="e.g. 16:9 ratio, Hasselblad lighting, or Cricut cut line..." class="w-full bg-slate-900 text-white text-xs p-3 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 font-medium"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button onclick="closeAddIdeaModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition">Cancel</button>
+                    <button onclick="submitNewIdeaModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-600/25 active:scale-95">Save to Kanban</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commercial Timing & Deadline Guide Modal -->
+    <div id="deadline-guide-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+        <div class="glass-panel w-full max-w-3xl rounded-3xl border border-slate-700 shadow-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar relative">
+            <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                        <i data-lucide="clock" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-white text-lg sm:text-xl">Commercial Timing & Upload Deadlines Guide</h3>
+                        <p class="text-xs text-slate-400">Master the 45–90 day stock indexing cycle to rank #1 during buyer purchase peaks</p>
+                    </div>
+                </div>
+                <button onclick="closeDeadlineGuideModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-5 text-xs text-slate-300 leading-relaxed">
+                <!-- Why 45-90 Days -->
+                <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                    <div class="flex items-center gap-2 text-white font-bold text-sm">
+                        <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i>
+                        <span>Why are upload deadlines 45 to 90 days ahead of the event?</span>
+                    </div>
+                    <p>
+                        Stock marketplaces like <strong>Adobe Stock</strong>, <strong>Shutterstock</strong>, and <strong>Etsy</strong> do not index content instantaneously. Their search algorithms (like Adobe Sensei) require <strong>3 to 6 weeks</strong> of exposure to register impressions, clicks, and initial conversions before giving high organic ranking.
+                    </p>
+                    <p>
+                        Furthermore, commercial buyers (marketing agencies, creative directors, and brands) purchase holiday and campaign assets <strong>4 to 8 weeks before</strong> the public holiday. If you upload on the day of the holiday, you have completely missed the multi-thousand dollar commercial budget window.
+                    </p>
+                </div>
+
+                <!-- Legend Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Prime Window -->
+                    <div class="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/40 space-y-1.5">
+                        <div class="flex items-center gap-2 font-bold text-emerald-300 text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                            <span>🟢 Prime Upload Window (45–90 Days)</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-200/80">
+                            The golden production period. Assets submitted now will finish review, enter indexation, and rank at top placement exactly when buyer search queries surge.
+                        </p>
+                    </div>
+
+                    <!-- Closing Soon -->
+                    <div class="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-500/40 space-y-1.5">
+                        <div class="flex items-center gap-2 font-bold text-amber-300 text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                            <span>🟡 Closing Soon (&lt; 14 Days to Deadline)</span>
+                        </div>
+                        <p class="text-[11px] text-amber-200/80">
+                            Final call for submissions. Submit vectors and photos immediately so they have enough time to clear moderation queues before the buyer buying window starts.
+                        </p>
+                    </div>
+
+                    <!-- Late -->
+                    <div class="p-3.5 rounded-2xl bg-rose-950/40 border border-rose-500/50 space-y-1.5">
+                        <div class="flex items-center gap-2 font-bold text-rose-300 text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                            <span>🔴 Late (&gt; Past Golden Deadline)</span>
+                        </div>
+                        <p class="text-[11px] text-rose-200/80">
+                            Past optimal indexing window (&lt; 45 days until event). Major advertising budgets are already locked in. Upload only for last-minute buyers, or build your catalog early for next year's cycle.
+                        </p>
+                    </div>
+
+                    <!-- Evergreen -->
+                    <div class="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/40 space-y-1.5">
+                        <div class="flex items-center gap-2 font-bold text-purple-300 text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+                            <span>⚡ Evergreen (Upload Anytime)</span>
+                        </div>
+                        <p class="text-[11px] text-purple-200/80">
+                            Topics with consistent year-round commercial demand (e.g. corporate finance, healthcare, mockups, clean 3D icons). Upload anytime with constant search indexing.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Practical Tips -->
+                <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+                    <span class="font-bold text-white block">Creator Action Checklist:</span>
+                    <ul class="space-y-1.5 list-disc list-inside text-slate-300">
+                        <li>Use the <strong>Ranked Calendar</strong> to plan your production schedule 2 to 3 months in advance.</li>
+                        <li>Sort search results by <strong>Deadline</strong> to tackle time-sensitive themes before they turn late.</li>
+                        <li>Hit <strong>"+ Queue"</strong> on any keyword or event to track it through your Kanban pipeline.</li>
+                        <li>Log each completed asset with <strong>"Log Done"</strong> to maintain your daily production quota streak.</li>
+                    </ul>
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex justify-end">
+                    <button onclick="closeDeadlineGuideModal()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-md">Got It, Thanks!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
