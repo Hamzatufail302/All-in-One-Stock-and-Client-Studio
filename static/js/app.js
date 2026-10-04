@@ -38,6 +38,14 @@ const state = {
         filterLeadStatus: 'all',
         generatedPitch: null
     },
+    youtubeStudio: {
+        overview: null,
+        activeChannel: 'ink_explainer',
+        activeSubTab: 'topics',
+        filterCategory: 'all',
+        customIdea: null,
+        generatedInkPrompt: null
+    },
     registry: new Map() // Safe object cache preventing string escaping / syntax errors
 };
 
@@ -390,6 +398,8 @@ function switchTab(tabId, preserveSearchQuery = null) {
         loadAndroidAppsTab(preserveSearchQuery);
     } else if (tabId === 'client-acquisition') {
         loadClientAcquisitionTab();
+    } else if (tabId === 'youtube-studio') {
+        loadYouTubeStudioTab();
     }
 
     lucide.createIcons();
@@ -6552,4 +6562,704 @@ function updateCustomRetainerCalc() {
     if (elReplies) elReplies.innerText = `${minReplies} - ${maxReplies} Replies`;
     if (elDays) elDays.innerText = `~${daysNeeded} Days`;
 }
+
+// ==========================================================================
+// YOUTUBE STUDIO & 4-CHANNEL ACCELERATOR CONTROLLER
+// Tailored for Hamza Tufail
+// ==========================================================================
+
+async function loadYouTubeStudioTab() {
+    const container = document.getElementById('tab-youtube-studio');
+    if (!container) return;
+
+    if (!state.youtubeStudio.overview) {
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-20 space-y-4">
+                <div class="w-12 h-12 rounded-full border-4 border-red-500/20 border-t-red-500 animate-spin"></div>
+                <p class="text-sm text-slate-400 font-mono">Loading 4-Channel YouTube Studio & Viral Blueprints...</p>
+            </div>
+        `;
+        try {
+            const res = await fetch('/api/youtube/overview');
+            const data = await res.json();
+            state.youtubeStudio.overview = data;
+        } catch (e) {
+            console.error('Error loading YouTube overview:', e);
+            container.innerHTML = `
+                <div class="p-8 rounded-3xl bg-rose-500/10 border border-rose-500/30 text-center">
+                    <p class="text-rose-400 font-bold">Failed to load YouTube Studio data.</p>
+                    <button onclick="loadYouTubeStudioTab()" class="mt-4 px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-700">Retry</button>
+                </div>
+            `;
+            return;
+        }
+    }
+
+    renderYouTubeStudioTab();
+}
+
+function renderYouTubeStudioTab() {
+    const container = document.getElementById('tab-youtube-studio');
+    const overview = state.youtubeStudio.overview;
+    if (!container || !overview) return;
+
+    const channels = overview.channels || [];
+    const activeChannelId = state.youtubeStudio.activeChannel || 'ink_explainer';
+    const activeSubTab = state.youtubeStudio.activeSubTab || 'topics';
+    const activeChannel = channels.find(c => c.id === activeChannelId) || channels[0];
+    const blueprints = (overview.video_blueprints || {})[activeChannelId] || [];
+
+    let html = `
+        <div class="space-y-8 animate-in fade-in duration-200">
+            <!-- Hero Header Banner -->
+            <div class="relative rounded-3xl p-8 sm:p-10 overflow-hidden glass-panel border border-red-500/25 shadow-2xl">
+                <div class="absolute -right-20 -top-20 w-96 h-96 bg-red-600/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-amber-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div class="space-y-3 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-semibold shadow-sm">
+                            <i data-lucide="youtube" class="w-3.5 h-3.5 text-red-400"></i>
+                            YouTube 4-Channel Production Command Center • Hamza Tufail
+                        </div>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                            Viral Video Strategy, <span class="bg-gradient-to-r from-red-400 via-amber-300 to-pink-400 bg-clip-text text-transparent">AI Doodle Prompts</span> & Channel Blueprints
+                        </h1>
+                        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                            Engineered for 4 high-growth pillars: Faceless AI Hand-Drawn Animation (<strong>Ink Explainer</strong> style), US Curiosities Video Essays, On-Camera <strong>After Effects & Tech</strong> (English), and <strong>Urdu Historical Epics</strong> (Hamza Tufail).
+                        </p>
+                    </div>
+
+                    <!-- Quick Stats Badges -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 shrink-0">
+                        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
+                            <div class="text-xl font-black text-red-400 font-mono">4</div>
+                            <div class="text-[10px] text-slate-400 uppercase font-mono">Strategic Channels</div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
+                            <div class="text-xl font-black text-amber-400 font-mono">10M+</div>
+                            <div class="text-[10px] text-slate-400 uppercase font-mono">Doodle Style Reach</div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
+                            <div class="text-xl font-black text-emerald-400 font-mono">$4 – $22</div>
+                            <div class="text-[10px] text-slate-400 uppercase font-mono">Target US/Global RPM</div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
+                            <div class="text-xl font-black text-indigo-400 font-mono">100%</div>
+                            <div class="text-[10px] text-slate-400 uppercase font-mono">Kanban Integrated</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4-Channel Selection Switcher Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                ${channels.map(ch => {
+                    const isSelected = ch.id === activeChannelId;
+                    let iconName = 'sparkles';
+                    let accentColor = 'indigo';
+                    if (ch.id === 'ink_explainer') { iconName = 'pen-tool'; accentColor = 'amber'; }
+                    else if (ch.id === 'trending_info') { iconName = 'globe'; accentColor = 'blue'; }
+                    else if (ch.id === 'hamza_tech') { iconName = 'monitor'; accentColor = 'purple'; }
+                    else if (ch.id === 'urdu_dastaan') { iconName = 'book-open'; accentColor = 'emerald'; }
+
+                    return `
+                        <div onclick="switchYouTubeChannel('${ch.id}')" class="p-5 rounded-2xl glass-card cursor-pointer border transition-all duration-200 group flex flex-col justify-between ${isSelected ? 'border-red-500 bg-red-500/10 shadow-lg shadow-red-500/15 ring-2 ring-red-500/30' : 'border-slate-800/80 hover:border-slate-700 bg-slate-900/60'}">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isSelected ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-300'} font-mono">
+                                        ${escapeHtml(ch.badge)}
+                                    </span>
+                                    <span class="text-[11px] font-mono text-emerald-400 font-bold">${escapeHtml(ch.estimated_rpm.split('/')[0])}</span>
+                                </div>
+                                <h3 class="text-base font-black text-white group-hover:text-red-400 transition-colors">${escapeHtml(ch.name)}</h3>
+                                <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">${escapeHtml(ch.core_thesis)}</p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                                <span>${escapeHtml(ch.language)}</span>
+                                <span class="text-slate-500 group-hover:text-red-400 font-bold flex items-center gap-1">
+                                    ${isSelected ? 'Active Channel ✓' : 'Select →'}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+
+            <!-- Active Channel Master Strategy & Blueprint Card -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center text-white shadow-xl shadow-red-600/25 shrink-0">
+                            <i data-lucide="${activeChannel.id === 'ink_explainer' ? 'pen-tool' : (activeChannel.id === 'hamza_tech' ? 'monitor' : (activeChannel.id === 'urdu_dastaan' ? 'book-open' : 'globe'))}" class="w-7 h-7"></i>
+                        </div>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="text-2xl font-black text-white">${escapeHtml(activeChannel.name)}</h2>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 font-mono">${escapeHtml(activeChannel.creator_format)}</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1">Inspiration & Benchmark: <span class="text-amber-300 font-medium">${escapeHtml(activeChannel.inspiration)}</span></p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="exportYouTubeIdeasCSV()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition">
+                            <i data-lucide="download" class="w-3.5 h-3.5 text-red-400"></i>
+                            Export Ideas CSV
+                        </button>
+                        <button onclick="switchTab('queue')" class="px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition">
+                            <i data-lucide="list-todo" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            View Production Queue
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Channel Strategy Metrics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+                        <span class="text-slate-400 font-mono text-[10px] uppercase block">Target Audience & Geo</span>
+                        <p class="text-slate-200 font-semibold leading-relaxed">${escapeHtml(activeChannel.target_audience)}</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+                        <span class="text-slate-400 font-mono text-[10px] uppercase block">Revenue Potential & RPM</span>
+                        <p class="text-emerald-400 font-bold text-sm font-mono">${escapeHtml(activeChannel.estimated_rpm)}</p>
+                        <p class="text-[11px] text-slate-400">${escapeHtml(activeChannel.monetization.split(',')[0])}</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+                        <span class="text-slate-400 font-mono text-[10px] uppercase block">Upload Cadence & Length</span>
+                        <p class="text-amber-300 font-bold text-sm font-mono">${escapeHtml(activeChannel.upload_frequency.split('(')[0])}</p>
+                        <p class="text-[11px] text-slate-400">${escapeHtml(activeChannel.upload_frequency.split('(')[1] ? '(' + activeChannel.upload_frequency.split('(')[1] : '')}</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+                        <span class="text-slate-400 font-mono text-[10px] uppercase block">Production & Software Stack</span>
+                        <p class="text-slate-200 font-medium leading-relaxed">${escapeHtml(activeChannel.production_stack.split(',').slice(0, 3).join(', '))}</p>
+                    </div>
+                </div>
+
+                <!-- Visual Aesthetic & Style Directive -->
+                <div class="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+                    <div class="space-y-1 max-w-4xl">
+                        <span class="font-bold text-amber-300 uppercase font-mono tracking-wider flex items-center gap-1.5 text-[11px]">
+                            <i data-lucide="palette" class="w-3.5 h-3.5"></i>
+                            Signature Visual Aesthetic:
+                        </span>
+                        <p class="text-slate-300 leading-relaxed">${escapeHtml(activeChannel.visual_style)}</p>
+                    </div>
+                    ${activeChannel.id === 'ink_explainer' ? `
+                        <button onclick="switchYouTubeSubTab('prompt_studio')" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold shrink-0 transition flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+                            Launch AI Doodle Studio
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- Sub-Navigation Tabs Bar -->
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto no-scrollbar">
+                <button onclick="switchYouTubeSubTab('topics')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition ${activeSubTab === 'topics' ? 'bg-red-600 text-white shadow-lg shadow-red-600/25' : 'bg-slate-900 text-slate-400 hover:text-white'}">
+                    <i data-lucide="film" class="w-3.5 h-3.5"></i>
+                    <span>Viral Video Blueprints (${blueprints.length})</span>
+                </button>
+
+                <button onclick="switchYouTubeSubTab('prompt_studio')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition ${activeSubTab === 'prompt_studio' ? 'bg-red-600 text-white shadow-lg shadow-red-600/25' : 'bg-slate-900 text-slate-400 hover:text-white'}">
+                    <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i>
+                    <span>Ink Explainer AI Prompt Studio</span>
+                </button>
+
+                <button onclick="switchYouTubeSubTab('generator')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition ${activeSubTab === 'generator' ? 'bg-red-600 text-white shadow-lg shadow-red-600/25' : 'bg-slate-900 text-slate-400 hover:text-white'}">
+                    <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i>
+                    <span>Dynamic Idea Generator</span>
+                </button>
+
+                <button onclick="switchYouTubeSubTab('checklist')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition ${activeSubTab === 'checklist' ? 'bg-red-600 text-white shadow-lg shadow-red-600/25' : 'bg-slate-900 text-slate-400 hover:text-white'}">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                    <span>8-Step Creator Execution Checklist</span>
+                </button>
+            </div>
+    `;
+
+    // SUB-TAB 1: VIRAL VIDEO BLUEPRINTS
+    if (activeSubTab === 'topics') {
+        html += `
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-black text-white tracking-tight">Curated High-CTR Video Blueprints</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Click-tested titles, thumbnail punch text, and 30-second retention hooks ready to produce</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    ${blueprints.map((item, idx) => `
+                        <div class="glass-card rounded-3xl p-6 border border-slate-800/90 shadow-xl flex flex-col justify-between space-y-5 hover:border-slate-700 transition">
+                            <div class="space-y-4">
+                                <!-- Top Strip -->
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-black text-xs flex items-center justify-center font-mono">${idx + 1}</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">
+                                            ★ ${item.virality_score}/100 Virality
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                                        <span>⏱️ ${escapeHtml(item.duration)}</span>
+                                        <span>•</span>
+                                        <span class="text-amber-300 font-bold">${escapeHtml(item.views_benchmark)}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Video Title -->
+                                <div>
+                                    <h4 class="text-lg font-black text-white leading-snug group-hover:text-red-400 transition-colors">${escapeHtml(item.title)}</h4>
+                                </div>
+
+                                <!-- Thumbnail Blueprint Visual Box (Simulating Ink Explainer Style) -->
+                                <div class="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                                            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+                                            Thumbnail Visual & Text Formula:
+                                        </span>
+                                        <!-- Bold Punchy Thumbnail Text Badge -->
+                                        <span class="px-2.5 py-1 rounded-lg bg-yellow-400 text-black font-black text-xs font-mono shadow-md uppercase tracking-wider">
+                                            "${escapeHtml(item.thumbnail_text)}"
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-amber-200/90 leading-relaxed font-sans">${escapeHtml(item.thumbnail_concept)}</p>
+                                </div>
+
+                                <!-- 30-Second Golden Retention Hook -->
+                                <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                                            <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+                                            First 30-Second Golden Hook Script:
+                                        </span>
+                                        <button onclick="copyToClipboard('${escapeHtml(item.hook_script).replace(/'/g, "\\'")}', 'Hook script copied to clipboard!')" class="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 transition">
+                                            <i data-lucide="copy" class="w-3 h-3"></i> Copy Hook
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-slate-300 italic leading-relaxed">"${escapeHtml(item.hook_script)}"</p>
+                                </div>
+
+                                <!-- Content Story Beats -->
+                                <div class="space-y-1.5 text-xs text-slate-400">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono block">5-Part Story Structure:</span>
+                                    <ul class="space-y-1 list-disc list-inside text-[11px] text-slate-300">
+                                        ${(item.content_beats || []).map(b => `<li>${escapeHtml(b)}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons Strip -->
+                            <div class="pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <button onclick="copyToClipboard('${escapeHtml(item.title).replace(/'/g, "\\'")}', 'Title copied!')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition" title="Copy Video Title">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="copyToClipboard('${escapeHtml(item.ai_prompt).replace(/'/g, "\\'")}', 'AI Image Prompt copied!')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition" title="Copy AI Art Prompt for Thumbnail/Scenes">
+                                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+                                        <span>Copy AI Prompt</span>
+                                    </button>
+                                </div>
+
+                                <button onclick="saveYouTubeIdeaToKanban('${escapeHtml(item.title).replace(/'/g, "\\'")}', '${escapeHtml(activeChannel.name).replace(/'/g, "\\'")}', '${escapeHtml(item.thumbnail_text).replace(/'/g, "\\'")}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-lg shadow-red-600/20 active:scale-95">
+                                    <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                                    <span>+ Add to Production Kanban</span>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // SUB-TAB 2: INK EXPLAINER AI PROMPT STUDIO
+    else if (activeSubTab === 'prompt_studio') {
+        const config = overview.ink_explainer_config || {};
+        const generated = state.youtubeStudio.generatedInkPrompt;
+
+        html += `
+            <div class="space-y-8">
+                <div>
+                    <h3 class="text-2xl font-black text-white tracking-tight">Ink Explainer Hand-Drawn AI Animation Studio</h3>
+                    <p class="text-xs text-slate-400 mt-1">Generate authentic 2D minimalist black-ink stickman prompts and After Effects rigging recipes</p>
+                </div>
+
+                <!-- Breakdown of the Screenshot & Viral Psychology -->
+                <div class="p-6 rounded-3xl bg-slate-900/90 border border-amber-500/30 shadow-xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                            <i data-lucide="help-circle" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-black text-white">Why "Ink Explainer" Doodle Art Gets 10M+ Views</h4>
+                            <p class="text-xs text-slate-400">Deconstructing the viral visual framework from your attached screenshot</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-1">
+                            <strong class="text-amber-300 block">1. Zero "AI Uncanny Valley"</strong>
+                            <p class="text-slate-300 leading-relaxed">Unlike hyper-realistic AI images that look plastic or fake, hand-drawn comic stickmen feel charming, authentic, and universally relatable.</p>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-1">
+                            <strong class="text-amber-300 block">2. Emotional Caricatures</strong>
+                            <p class="text-slate-300 leading-relaxed">The characters have exaggerated comic expressions (lazy smiling, crazy eyes, comically sweating) which instantly convey emotion in a thumbnail split-second.</p>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-1">
+                            <strong class="text-amber-300 block">3. 12fps Posterize Motion</strong>
+                            <p class="text-slate-300 leading-relaxed">Setting After Effects comps to 12fps with boiling line jitter replicates traditional cell animation, giving hypnotic watch-time retention.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Prompt Generator -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-5 glass-panel rounded-3xl p-6 sm:p-7 border border-slate-800 shadow-xl space-y-4">
+                        <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
+                            <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i>
+                            <h4 class="font-bold text-white text-sm">Doodle Prompt Builder</h4>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Mystery / Historical Scene Topic</label>
+                            <input id="ink-prompt-topic" type="text" placeholder="e.g. Ancient humans surviving a 40-day thunderstorm in a cave" value="Ancient humans discovering fire by accident" class="w-full bg-slate-900 text-white text-xs p-3 rounded-xl border border-slate-700 focus:outline-none focus:border-amber-500 font-medium" />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Character Archetype</label>
+                            <select id="ink-prompt-char" class="w-full bg-slate-900 text-slate-200 text-xs p-2.5 rounded-xl border border-slate-700 focus:outline-none font-medium">
+                                <option value="prehistoric caveman stick figure in ragged brown animal fur tunic holding flint spear">Prehistoric Caveman with Animal Fur Tunic & Spear</option>
+                                <option value="relaxed prehistoric caveman stick figure lying blissfully on savannah grass smiling">Lazy / Relaxed Caveman Sunbathing (No Jobs)</option>
+                                <option value="worried modern human stickman wearing necktie and carrying briefcase looking stressed">Modern Stressed Human in Suit with Briefcase</option>
+                                <option value="ancient Egyptian stickman builder staring in confusion at giant pyramid stone">Ancient Egyptian Builder scratching head at Pyramid</option>
+                                <option value="medieval armored knight stickman holding bent wooden shield and sword">Medieval Knight with Rusty Sword & Bent Shield</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Environment / Setting</label>
+                            <select id="ink-prompt-setting" class="w-full bg-slate-900 text-slate-200 text-xs p-2.5 rounded-xl border border-slate-700 focus:outline-none font-medium">
+                                <option value="sun-drenched prehistoric savannah grass with distant acacia trees under warm pale sky">Prehistoric Savannah Grassland & Acacia Trees</option>
+                                <option value="cozy flickering campfire inside limestone cave with faint charcoal stickman drawings on walls">Cozy Flickering Campfire inside Dark Cave</option>
+                                <option value="freezing glacial Ice Age blizzard with huddling mammoth silhouettes in background">Ice Age Blizzard with Mammoth Silhouettes</option>
+                                <option value="endless rolling golden sand dunes under scorching desert sun">Endless Desert Dunes under Scorching Sun</option>
+                            </select>
+                        </div>
+
+                        <button onclick="executeGenerateInkPrompt()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-black font-extrabold text-xs transition shadow-lg shadow-amber-500/25 active:scale-95 flex items-center justify-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            Generate Master Midjourney / Flux Prompt
+                        </button>
+                    </div>
+
+                    <!-- Output Panel -->
+                    <div class="lg:col-span-7 glass-panel rounded-3xl p-6 sm:p-7 border border-slate-800 shadow-xl space-y-5">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+                                <h4 class="font-bold text-white text-sm">Ready Midjourney v6 & Flux Prompt</h4>
+                            </div>
+                            <span class="text-[10px] text-amber-400 font-mono font-bold">100% Ink Explainer Match</span>
+                        </div>
+
+                        <div id="ink-prompt-result-box" class="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs text-amber-200 leading-relaxed select-all">
+                            ${generated ? escapeHtml(generated.full_prompt) : 'minimalist hand-drawn doodle cartoon illustration in Ink Explainer style, prehistoric caveman stick figure in ragged brown animal fur tunic, humorous facial expression, scene depicting ancient humans discovering fire by accident, set in sun-drenched prehistoric savannah grass with distant acacia trees, simple 2D clean black ink contours, expressive cartoon eyes, warm beige textured parchment background, editorial book art style, flat muted pastel accents, no gradients, no photorealism --ar 16:9 --style raw'}
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <button onclick="copyGeneratedInkPrompt()" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Prompt
+                            </button>
+                            <span class="text-xs text-slate-500 font-mono">Use in Midjourney v6 or Flux.1 Dev</span>
+                        </div>
+
+                        <!-- After Effects Step-by-Step Rigging Guide -->
+                        <div class="p-4 rounded-2xl bg-slate-900/90 border border-indigo-500/30 space-y-2 text-xs">
+                            <div class="font-bold text-indigo-300 flex items-center gap-1.5">
+                                <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+                                <span>After Effects Hand-Drawn Motion Rigging Recipe:</span>
+                            </div>
+                            <ol class="space-y-1.5 text-slate-300 list-decimal list-inside text-[11px] leading-relaxed">
+                                <li>Import the generated PNG into After Effects -> Create New Composition (1920x1080 @ 24fps).</li>
+                                <li>Add effect <strong>Posterize Time</strong> set to <span class="text-amber-300 font-bold">12fps</span> (gives authentic vintage cartoon cadence).</li>
+                                <li>Add <strong>Turbulent Displace</strong> (Size: 3, Amount: 4, Evolution expression: <code>time*25</code>) for boiling hand-drawn line jitter.</li>
+                                <li>Use the <strong>Puppet Pin Tool</strong> on arms/head for easy rubberhose bending.</li>
+                                <li>Layer parchment paper texture on bottom track with Blend Mode <em>Multiply</em> (Opacity 40%).</li>
+                                <li>Add subtle camera push-ins with expression <code>wiggle(1, 4)</code> for handheld organic camera feel.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // SUB-TAB 3: DYNAMIC IDEA GENERATOR
+    else if (activeSubTab === 'generator') {
+        const customIdea = state.youtubeStudio.customIdea;
+
+        html += `
+            <div class="space-y-8">
+                <div>
+                    <h3 class="text-2xl font-black text-white tracking-tight">AI Viral Concept & Thumbnail Generator</h3>
+                    <p class="text-xs text-slate-400 mt-1">Generate high-CTR clickbait titles, thumbnail punch words, and retention hooks for any channel</p>
+                </div>
+
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div class="md:col-span-4">
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Target Channel</label>
+                            <select id="gen-channel-select" class="w-full bg-slate-900 text-slate-200 text-xs p-3 rounded-xl border border-slate-700 focus:outline-none font-medium">
+                                ${channels.map(c => `
+                                    <option value="${c.id}" ${c.id === activeChannelId ? 'selected' : ''}>${escapeHtml(c.name)}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-8">
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Seed Subject / Keyword (Optional)</label>
+                            <div class="flex items-center gap-2">
+                                <input id="gen-seed-keyword" type="text" placeholder="e.g. Winter survival, After Effects speed graph, Battle of Panipat, US gas stations..." class="w-full bg-slate-900 text-white text-xs p-3 rounded-xl border border-slate-700 focus:outline-none focus:border-red-500 font-medium" />
+                                <button onclick="executeGenerateCustomIdea()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-black text-xs shrink-0 transition shadow-lg shadow-red-600/25 active:scale-95 flex items-center gap-1.5">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                    Generate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Result Box -->
+                    <div id="custom-idea-result-container">
+                        ${customIdea ? `
+                            <div class="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-4 animate-in fade-in duration-150">
+                                <div class="flex items-center justify-between">
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 font-mono">
+                                        ${escapeHtml(customIdea.channel_name)}
+                                    </span>
+                                    <span class="text-xs font-mono text-emerald-400 font-bold">★ ${customIdea.virality_score}/100 Virality Score</span>
+                                </div>
+
+                                <h4 class="text-xl font-black text-white">${escapeHtml(customIdea.title)}</h4>
+
+                                <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4">
+                                    <div>
+                                        <span class="text-[10px] text-amber-400 font-mono font-bold uppercase block">Thumbnail Hook Concept</span>
+                                        <p class="text-xs text-amber-200 mt-0.5">${escapeHtml(customIdea.thumbnail_concept)}</p>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-lg bg-yellow-400 text-black font-black text-xs font-mono shrink-0 shadow-md">
+                                        "${escapeHtml(customIdea.thumbnail_text)}"
+                                    </span>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+                                    <span class="text-[10px] text-indigo-400 font-mono font-bold uppercase block mb-1">Hook Retention Formula:</span>
+                                    <p class="italic text-slate-300">${escapeHtml(customIdea.hook_formula)}</p>
+                                </div>
+
+                                <div class="flex items-center justify-between pt-2">
+                                    <button onclick="copyToClipboard('${escapeHtml(customIdea.title).replace(/'/g, "\\'")}', 'Title copied!')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Title
+                                    </button>
+                                    <button onclick="saveYouTubeIdeaToKanban('${escapeHtml(customIdea.title).replace(/'/g, "\\'")}', '${escapeHtml(customIdea.channel_name).replace(/'/g, "\\'")}', '${escapeHtml(customIdea.thumbnail_text).replace(/'/g, "\\'")}')" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-1.5 transition">
+                                        <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add to Kanban Queue
+                                    </button>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="py-12 text-center text-slate-500 text-xs font-mono">
+                                Select a channel and click Generate to produce a custom viral video blueprint.
+                            </div>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // SUB-TAB 4: 8-STEP CREATOR CHECKLIST
+    else if (activeSubTab === 'checklist') {
+        html += `
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-2xl font-black text-white tracking-tight">Hamza Tufail's 8-Step YouTube Production Protocol</h3>
+                    <p class="text-xs text-slate-400 mt-1">The battle-tested workflow to guarantee high CTR, 60%+ average percentage viewed, and steady organic growth</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div class="p-5 rounded-2xl glass-panel border border-slate-800 space-y-2">
+                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono text-xs">1</span>
+                        <h4 class="font-bold text-white text-sm">Thumbnail & Title First (Before Scripting)</h4>
+                        <p class="text-slate-300 leading-relaxed">Never write a script without having a locked thumbnail concept. Use the 2-to-3 word punchy text rule (e.g. <em>"NO JOBS?"</em>, <em>"SURVIVED HOW?"</em>). If the thumbnail can't stop a viewer's thumb in 0.5 seconds, the best video in the world won't get clicked.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl glass-panel border border-slate-800 space-y-2">
+                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono text-xs">2</span>
+                        <h4 class="font-bold text-white text-sm">First 15-Second Golden Hook</h4>
+                        <p class="text-slate-300 leading-relaxed">Never say "Hey guys welcome back". Immediately address the premise in the thumbnail. Create a curiosity gap or challenge a comfortable belief. Lock their attention before 0:30.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl glass-panel border border-slate-800 space-y-2">
+                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono text-xs">3</span>
+                        <h4 class="font-bold text-white text-sm">Visual Pattern Interrupts (Every 3.0s)</h4>
+                        <p class="text-slate-300 leading-relaxed">Human eyes fatigue when looking at the same static frame for > 4 seconds. Switch angles, zoom in 10%, pop up a graphic, animate a stickman arm, or insert a subtle camera pan.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl glass-panel border border-slate-800 space-y-2">
+                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono text-xs">4</span>
+                        <h4 class="font-bold text-white text-sm">Radio Broadcast Audio Mastering</h4>
+                        <p class="text-slate-300 leading-relaxed">Bad video with good audio is watchable; good video with bad audio is unwatchable. For on-camera/Urdu voice, use close mic proximity with gentle compression (-14 LUFS target) and sub-bass warmth.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl glass-panel border border-slate-800 space-y-2">
+                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono text-xs">5</span>
+                        <h4 class="font-bold text-white text-sm">12fps Hand-Drawn Doodle Cadence</h4>
+                        <p class="text-slate-300 leading-relaxed">For the Ink Explainer channel, apply <em>Posterize Time</em> (12fps) and <em>Turbulent Displace</em> in After Effects. Layer organic paper sound effects on every visual change.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl glass-panel border border-slate-800 space-y-2">
+                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono text-xs">6</span>
+                        <h4 class="font-bold text-white text-sm">Sound Design Layering</h4>
+                        <p class="text-slate-300 leading-relaxed">Every graphic pop must have an audio tactile cue: a soft wooden click, paper whoosh, or low impact thump. Adaptive music ducking ensures voice clarity at -24dB background.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl glass-panel border border-slate-800 space-y-2">
+                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono text-xs">7</span>
+                        <h4 class="font-bold text-white text-sm">No "Goodbye" Endings</h4>
+                        <p class="text-slate-300 leading-relaxed">When you say "In conclusion" or "Thanks for watching", 50% of viewers click off. Seamlessly pitch the next recommended video with an end-screen card before they realize the video is over.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl glass-panel border border-slate-800 space-y-2">
+                        <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono text-xs">8</span>
+                        <h4 class="font-bold text-white text-sm">Batch Production & Consistency Radar</h4>
+                        <p class="text-slate-300 leading-relaxed">Script 3 videos on Saturday, record all 3 on Sunday, and edit throughout the week. Maintain a strict 2-week backlog so an illness or busy freelance week never breaks your algorithm momentum.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+    container.innerHTML = html;
+    lucide.createIcons();
+}
+
+function switchYouTubeChannel(channelId) {
+    state.youtubeStudio.activeChannel = channelId;
+    renderYouTubeStudioTab();
+}
+
+function switchYouTubeSubTab(subTabId) {
+    state.youtubeStudio.activeSubTab = subTabId;
+    renderYouTubeStudioTab();
+}
+
+async function executeGenerateInkPrompt() {
+    const topic = (document.getElementById('ink-prompt-topic')?.value || '').trim();
+    const char = document.getElementById('ink-prompt-char')?.value || '';
+    const setting = document.getElementById('ink-prompt-setting')?.value || '';
+
+    try {
+        const res = await fetch('/api/youtube/generate-ink-prompt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic: `${topic}, featuring ${char}, set in ${setting}` })
+        });
+        const data = await res.json();
+        state.youtubeStudio.generatedInkPrompt = data;
+        const box = document.getElementById('ink-prompt-result-box');
+        if (box) box.innerText = data.full_prompt;
+        showToast('Generated new Ink Explainer doodle prompt!', 'success');
+    } catch (e) {
+        console.error(e);
+        showToast('Error generating doodle prompt', 'error');
+    }
+}
+
+function copyGeneratedInkPrompt() {
+    const box = document.getElementById('ink-prompt-result-box');
+    if (box) {
+        copyToClipboard(box.innerText.trim(), 'AI Doodle Prompt copied!');
+    }
+}
+
+async function executeGenerateCustomIdea() {
+    const channelId = document.getElementById('gen-channel-select')?.value || state.youtubeStudio.activeChannel;
+    const seed = (document.getElementById('gen-seed-keyword')?.value || '').trim();
+
+    try {
+        const res = await fetch('/api/youtube/generate-idea', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ channel_id: channelId, seed_keyword: seed })
+        });
+        const data = await res.json();
+        state.youtubeStudio.customIdea = data;
+        renderYouTubeStudioTab();
+        showToast('Generated custom viral video blueprint!', 'success');
+    } catch (e) {
+        console.error(e);
+        showToast('Error generating idea', 'error');
+    }
+}
+
+async function saveYouTubeIdeaToKanban(title, channelName, thumbnailText) {
+    try {
+        const res = await fetch('/api/items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                keyword: title,
+                platform: `YouTube (${channelName})`,
+                asset_type: 'Video (Long-Form)',
+                demand_score: 95,
+                competition: 'Medium',
+                status: 'Idea',
+                notes: `Thumbnail Punch Text: "${thumbnailText}" | Target: High Retention YouTube`,
+                title_suggestion: title,
+                tags: 'youtube, viral, video editing, hamza tufail, long-form'
+            })
+        });
+        const data = await res.json();
+        if (data.id || data.success) {
+            showToast(`Added "${title}" to your Production Kanban Queue!`, 'success');
+            // Update queue count badge if present
+            const badge = document.getElementById('queue-count-badge');
+            if (badge) {
+                const current = parseInt(badge.innerText) || 0;
+                badge.innerText = current + 1;
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Saved to production queue!', 'success');
+    }
+}
+
+function exportYouTubeIdeasCSV() {
+    const overview = state.youtubeStudio.overview;
+    if (!overview) return;
+
+    const blueprints = overview.video_blueprints || {};
+    let csv = '"Channel","Title","Thumbnail Text","Duration","Views Benchmark","Virality Score","30s Hook Script"\n';
+
+    for (const [chId, items] of Object.entries(blueprints)) {
+        items.forEach(item => {
+            const ch = (chId || '').replace(/"/g, '""');
+            const title = (item.title || '').replace(/"/g, '""');
+            const thumb = (item.thumbnail_text || '').replace(/"/g, '""');
+            const dur = (item.duration || '').replace(/"/g, '""');
+            const views = (item.views_benchmark || '').replace(/"/g, '""');
+            const score = item.virality_score || 95;
+            const hook = (item.hook_script || '').replace(/"/g, '""');
+            csv += `"${ch}","${title}","${thumb}","${dur}","${views}","${score}","${hook}"\n`;
+        });
+    }
+
+    downloadCSV(csv, "hamza_tufail_youtube_4channel_blueprints.csv");
+    showToast('Exported all YouTube channel ideas to CSV!', 'success');
+}
+
 

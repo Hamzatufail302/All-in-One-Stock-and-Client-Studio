@@ -146,6 +146,11 @@
                         <i data-lucide="video" class="w-3.5 h-3.5 text-pink-400"></i>
                         <span>Client Acquisition</span>
                     </button>
+
+                    <button onclick="switchTab('youtube-studio')" data-tab="youtube-studio" class="nav-tab px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap text-slate-400 hover:text-white">
+                        <i data-lucide="youtube" class="w-3.5 h-3.5 text-red-500"></i>
+                        <span>YouTube Studio</span>
+                    </button>
                 </nav>
 
                 <!-- Right Action Controls -->
@@ -261,6 +266,10 @@
                     <button onclick="switchTab('client-acquisition'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
                         <i data-lucide="video" class="w-4 h-4 text-pink-400"></i>
                         Client Acquisition & Video Outreach
+                    </button>
+                    <button onclick="switchTab('youtube-studio'); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-200 hover:bg-slate-800/80 transition">
+                        <i data-lucide="youtube" class="w-4 h-4 text-red-500"></i>
+                        YouTube Studio (4 Channels)
                     </button>
                     <button onclick="openDeadlineGuideModal(); toggleMobileMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-amber-300 hover:bg-slate-800/80 transition">
                         <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
@@ -444,6 +453,11 @@
         <!-- TAB: VIDEO CLIENT ACQUISITION & OUTREACH -->
         <!-- ========================================== -->
         <div id="tab-client-acquisition" class="tab-panel hidden space-y-8"></div>
+
+        <!-- ========================================== -->
+        <!-- TAB: YOUTUBE STUDIO & 4-CHANNEL ACCELERATOR -->
+        <!-- ========================================== -->
+        <div id="tab-youtube-studio" class="tab-panel hidden space-y-8"></div>
 
     </main>
 

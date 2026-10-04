@@ -32,6 +32,10 @@ from crawler.android_playstore_engine import get_android_studio_data, audit_app_
 from crawler.client_acquisition import (
     get_client_acquisition_overview, generate_custom_pitch
 )
+from crawler.youtube_engine import (
+    get_youtube_studio_overview, generate_viral_video_idea,
+    generate_ink_explainer_prompt
+)
 
 # Initialize Database
 init_db()
@@ -135,6 +139,14 @@ class GeneratePitchRequest(BaseModel):
     channel_or_niche: str
     pitch_type: Optional[str] = "youtube_sample"
     custom_link: Optional[str] = None
+
+class YouTubeIdeaRequest(BaseModel):
+    channel_id: str
+    seed_keyword: Optional[str] = None
+
+class InkPromptRequest(BaseModel):
+    topic: str
+    scene_type: Optional[str] = None
 
 # Routes
 @app.get("/favicon.ico", include_in_schema=False)
@@ -445,6 +457,23 @@ async def remove_outreach_lead(lead_id: int):
     """Deletes a lead from the outreach CRM pipeline."""
     success = delete_outreach_lead(lead_id)
     return {"success": success}
+
+# --- YOUTUBE STUDIO & 4-CHANNEL CREATOR ENGINE ---
+
+@app.get("/api/youtube/overview")
+async def get_youtube_overview():
+    """Returns complete 4-channel blueprints, trending topics, and production tools."""
+    return get_youtube_studio_overview()
+
+@app.post("/api/youtube/generate-idea")
+async def generate_idea_endpoint(req: YouTubeIdeaRequest):
+    """Generates viral video concepts, thumbnail hooks, and script blueprints."""
+    return generate_viral_video_idea(req.channel_id, req.seed_keyword)
+
+@app.post("/api/youtube/generate-ink-prompt")
+async def generate_ink_prompt_endpoint(req: InkPromptRequest):
+    """Generates authentic hand-drawn doodle AI prompts (Ink Explainer style) and After Effects workflow."""
+    return generate_ink_explainer_prompt(req.topic, req.scene_type)
 
 if __name__ == "__main__":
     print("=" * 60)

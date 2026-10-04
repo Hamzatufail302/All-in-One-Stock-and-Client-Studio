@@ -52,6 +52,21 @@
 - Organize ideas and design roadmaps across 4 stages: `Idea` ➔ `Designing` ➔ `Ready` ➔ `Uploaded`.
 - Export your production roadmap or Alphabet Soup keywords to CSV.
 
+### 8. 🎥 YouTube 4-Channel Content & Studio Accelerator (Hamza Tufail)
+- **Channel 1: Ink Explainer (AI Hand-Drawn Doodle & Prehistory)**:
+  - Exact 2D minimalist stickman doodle animation style (inspired by `@Inkexplainer96` - 10M+ views).
+  - Prehistoric human nature, ancient survival, evolutionary mysteries, and bizarre historical behaviors.
+  - Dedicated **AI Prompt Studio**: Generates Midjourney v6 / Flux.1 doodle art prompts with textured parchment backgrounds and After Effects 12fps posterize-time rigging recipes.
+- **Channel 2: Curious Atlas (US Curiosities & Video Essays)**:
+  - High-RPM ($8–$16) US documentary essays on hidden billion-dollar industries, consumer psychology, suburban isolation, and modern phenomenons.
+- **Channel 3: Hamza Tufail (After Effects, Editing & Motion Design)**:
+  - On-camera English personal brand tutorials: Advanced After Effects expressions, kinetic typography, recreating Vox/Johnny Harris style maps, MOGRT building, and landing $3,000–$5,000/mo international freelance clients.
+- **Channel 4: Dastaan-e-Tareekh with Hamza Tufail (Urdu Historical Epics)**:
+  - Dramatic Urdu/Hindi storytelling: Sultan Salahuddin Ayyubi, Battle of Panipat (12,000 vs 100,000), Alamut Castle Assassins, lost Mughal treasures, and cinematic battle tactics.
+- **Curated Viral Video Blueprints**: 15+ pre-researched concepts with high-CTR titles, 2–3 word punchy thumbnail text (`"NO JOBS?"`, `"SURVIVED HOW?"`, `"BORN TO KILL?"`), 30-second golden retention hooks, and 5-stage story outlines.
+- **1-Click Kanban Integration**: Save any YouTube video concept directly into your SQLite production queue.
+- **Export to CSV**: Export complete video roadmaps and thumbnail hooks to CSV.
+
 ---
 
 ## 🚀 How to Run Locally
