@@ -1,5 +1,5 @@
 """
-StockPulse AI - Score Engine & Dynamic Concept Generator (v2.0 Elite)
+All-In-One Stock & Client Studio - Score Engine & Dynamic Concept Generator (v2.0 Elite)
 Calculates realistic performance scores for every commercial title and tag,
 and generates platform-tailored dynamic concepts for any search query.
 """

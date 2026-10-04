@@ -1,8 +1,8 @@
 /**
- * StockPulse AI - Frontend Application Controller
- * Handles live multi-engine search, platform-isolated research,
- * daily goal & progress tracker, 365-day ranked event calendar,
- * AI daily quota generator (15-20 prompts), and production queue.
+ * All-In-One Stock & Client Studio - Frontend Application Controller
+ * Handles live multi-engine stock search, platform-isolated research,
+ * direct client acquisition CRM, daily goal & progress tracker,
+ * 365-day ranked event calendar, AI prompts, and production queue.
  */
 
 // Application State
@@ -1102,7 +1102,7 @@ function exportSearchResultsCSV() {
         const sources = (r.sources || []).join('; ').replace(/"/g, '""');
         csv += `"${kw}","${title}","${uWindow}","${uDeadline}","${uStatus}","${opp}","${demand}","${comp}","${tool}","${format}","${mkt}","${sources}"\n`;
     });
-    downloadCSV(csv, `stockpulse_keywords_${query.replace(/\s+/g, '_')}.csv`);
+    downloadCSV(csv, `stock_client_studio_keywords_${query.replace(/\s+/g, '_')}.csv`);
     showToast('Exported keywords to CSV with upload deadlines!', 'success');
 }
 
@@ -3708,7 +3708,7 @@ function exportQueueCSV() {
         const isLate = timing.is_late ? `Yes (${timing.days_overdue}d overdue)` : 'No';
         csv += `"${i.id}","${(i.keyword || '').replace(/"/g, '""')}","${(i.platform || '').replace(/"/g, '""')}","${(i.asset_type || '').replace(/"/g, '""')}","${uWindow}","${uDeadline}","${uStatus}","${isLate}","${i.demand_score}","${(i.competition || 'Medium').replace(/"/g, '""')}","${i.status}","${i.created_at}"\n`;
     });
-    downloadCSV(csv, "stockpulse_production_queue.csv");
+    downloadCSV(csv, "stock_client_studio_production_queue.csv");
     showToast(`Exported ${state.queueItems.length} Kanban concepts to CSV!`, 'success');
 }
 

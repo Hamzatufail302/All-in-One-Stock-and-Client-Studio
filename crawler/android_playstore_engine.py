@@ -1,5 +1,5 @@
 """
-StockPulse AI - Android Play Store Intelligence & App Production Engine
+All-In-One Stock & Client Studio - Android Play Store Intelligence & App Production Engine
 Provides trending Android app blueprints with strictly ZERO-RECURRING-COST ($0/month)
 architectures, SEO metadata (30-char title, 80-char short desc, 4000-char full desc),
 Master AI prompts to build the app, exact asset upload specifications, and a continuous

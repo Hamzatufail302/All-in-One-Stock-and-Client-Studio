@@ -1,7 +1,7 @@
 @echo off
-title StockPulse AI - Keywords & Trends Crawler
+title All-In-One Stock & Client Studio
 echo ========================================================
-echo   StockPulse AI - Stock & Digital Product Intelligence
+echo   All-In-One Stock & Client Studio
 echo ========================================================
 echo.
 echo Starting local web server on http://localhost:8000 ...

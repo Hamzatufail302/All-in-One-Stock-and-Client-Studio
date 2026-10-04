@@ -1,5 +1,5 @@
 """
-StockPulse AI - Keywords & Trends Crawler for Stock & Digital Asset Creators
+All-In-One Stock & Client Studio - Trends, Marketplaces & Client Acquisition Engine
 FastAPI Backend Application
 """
 
@@ -37,8 +37,8 @@ from crawler.client_acquisition import (
 init_db()
 
 app = FastAPI(
-    title="StockPulse AI - Stock Keywords & Trends Crawler",
-    description="Local web intelligence platform for Adobe Stock, Shutterstock, Etsy, IconScout, and GraphicRiver creators.",
+    title="All-In-One Stock & Client Studio",
+    description="All-in-one local intelligence platform for Stock Marketplaces, Trends, and Direct Client Acquisition.",
     version="2.0.0"
 )
 
@@ -448,7 +448,7 @@ async def remove_outreach_lead(lead_id: int):
 
 if __name__ == "__main__":
     print("=" * 60)
-    print(">> StockPulse AI - Keywords & Trends Crawler Starting...")
+    print(">> All-In-One Stock & Client Studio Starting...")
     print(">> Local Server: http://localhost:8000")
     print("=" * 60)
     uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)

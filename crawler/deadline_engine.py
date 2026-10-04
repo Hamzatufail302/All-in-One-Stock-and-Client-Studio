@@ -1,5 +1,5 @@
 """
-StockPulse AI - Upload Deadline & Indexing Lead Time Engine
+All-In-One Stock & Client Studio - Upload Deadline & Indexing Lead Time Engine
 Calculates optimal stock submission deadlines, upload date ranges, buyer search peak windows,
 indexing lead times, and urgency/lateness countdowns for every keyword, asset concept,
 platform guide, seasonal niche, and event.
